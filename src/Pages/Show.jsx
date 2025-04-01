@@ -78,7 +78,7 @@ function Show() {
                             <td><img src={v.image} alt="Profile" height="50" /></td>
                             <td><img src={v.newImage} alt="Upload" height="50" /></td>
                             <td>
-                                <button onClick={() => handleDelete(i)}></button>
+                                <button onClick={() => handleDelete(i)}>Delete</button>
                                 <Link to={`/update/${i}`}></Link>
                             </td>
                         </tr>
