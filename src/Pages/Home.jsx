@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-
-
 
 function Home() {
     let navigate = useNavigate();
@@ -12,33 +10,34 @@ function Home() {
 
     const [formdata, setFormdata] = useState(() => {
         const data = localStorage.getItem("formdata");
-        return data ? JSON.parse(data) : { name: "", email: "" , newImage: ""};
+        return data ? JSON.parse(data) : { name: "", email: "", password: "", gender: "", hobby: [], city: "", newImage: "" };
     });
 
     const handleChange = (e) => {
         let name = e.target.name;
         let value = e.target.value;
-        if (name == "newImage") {
+        
+        if (name === "newImage") {
             let file = e.target.files[0];
             let reader = new FileReader();
             reader.onload = () => {
                 setImage(reader.result);
+                setFormdata({ ...formdata, newImage: reader.result });
             }
             reader.readAsDataURL(file);
         }
 
-        let ho = [...hobby];
-        if (name == 'hobby') {
+        if (name === "hobby") {
+            let ho = [...hobby];
             if (e.target.checked) {
-                ho.push(e.target.value)
+                ho.push(e.target.value);
             } else {
-                ho = ho.filter((v, i) => v !== e.target.value);
+                ho = ho.filter((v) => v !== e.target.value);
             }
-        }
-        setHobby(ho);
-
-        if (name == 'hobby') {
-            setFormdata({ ...formdata, ["hobby"]: ho })
+            setHobby(ho);
+            setFormdata({ ...formdata, hobby: ho });
+        } else if (name === "city") {
+            setFormdata({ ...formdata, city: value });
         } else {
             setFormdata({ ...formdata, [name]: value });
         }
@@ -46,26 +45,24 @@ function Home() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        formdata.newImage = image;
         const existingData = JSON.parse(localStorage.getItem("formdataList") || "[]");
         const updatedData = [...existingData, formdata];
         localStorage.setItem("formdataList", JSON.stringify(updatedData));
-        setFormdata({ name: "", email: "" });
+        
+        setFormdata({ name: "", email: "", password: "", gender: "", hobby: [], city: "", newImage: "" });
         setHobby([]);
         setCity([]);
         toast.success("Record Inserted Successfully");
         navigate("/show");
-    }
+    };
 
     return (
         <div>
             <h1 style={{ textAlign: "center" }}>Home Page</h1>
-            <form method='post' onSubmit={(e) => handleSubmit(e)}>
+            <form method='post' onSubmit={handleSubmit}>
                 <table border={1} align='center'>
                     <tr>
-                        <td>
-                            Name :
-                        </td>
+                        <td>Name :</td>
                         <td>
                             <input
                                 type='text'
@@ -78,9 +75,7 @@ function Home() {
                     </tr>
 
                     <tr>
-                        <td>
-                            Email :
-                        </td>
+                        <td>Email :</td>
                         <td>
                             <input
                                 type='email'
@@ -93,15 +88,13 @@ function Home() {
                     </tr>
 
                     <tr>
-                        <td>
-                            Password :
-                        </td>
+                        <td>Password :</td>
                         <td>
                             <input
                                 type='password'
                                 placeholder='Enter Your Pass'
                                 name='password'
-                                value={formdata.password ? formdata.password : ""}
+                                value={formdata.password}
                                 onChange={handleChange}
                             />
                         </td>
@@ -115,14 +108,14 @@ function Home() {
                                 name='gender'
                                 value="male"
                                 onChange={handleChange}
-                                checked={formdata.gender == "male" ? "checked" : ""}
+                                checked={formdata.gender === "male"}
                             />Male
                             <input
                                 type="radio"
                                 name='gender'
                                 value="female"
                                 onChange={handleChange}
-                                checked={formdata.gender == "female" ? "checked" : ""}
+                                checked={formdata.gender === "female"}
                             />Female
                         </td>
                     </tr>
@@ -135,21 +128,21 @@ function Home() {
                                 name='hobby'
                                 value="Writing"
                                 onChange={handleChange}
-                                checked={hobby.includes("Writing") ? "checked" : ""}
+                                checked={hobby.includes("Writing")}
                             />Writing
                             <input
                                 type="checkbox"
                                 name='hobby'
                                 value="Coding"
                                 onChange={handleChange}
-                                checked={hobby.includes("Coding") ? "checked" : ""}
+                                checked={hobby.includes("Coding")}
                             />Coding
                             <input
                                 type="checkbox"
                                 name='hobby'
                                 value="Reading"
                                 onChange={handleChange}
-                                checked={hobby.includes("Reading") ? "checked" : ""}
+                                checked={hobby.includes("Reading")}
                             />Reading
                         </td>
                     </tr>
@@ -157,19 +150,12 @@ function Home() {
                     <tr>
                         <td>Select City</td>
                         <td>
-                            <select name="city" onChange={(e) => handleChange(e)}>
+                            <select name="city" onChange={handleChange} value={formdata.city}>
                                 <option value="">--select city--</option>
-                                {city.map((v, i) => {
-                                    return <option value={v}>{v}</option>;
-                                })}
+                                {city.map((v, i) => (
+                                    <option key={i} value={v}>{v}</option>
+                                ))}
                             </select>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>Select Image</td>
-                        <td>
-                            <input type="text" name='image' onChange={handleChange} />
                         </td>
                     </tr>
 
@@ -177,14 +163,12 @@ function Home() {
                         <td>Upload Image</td>
                         <td>
                             <input type="file" name='newImage' onChange={handleChange} />
-                            <img src={image} height="100" />
+                            {image && <img src={image} height="100" alt="Preview" />}
                         </td>
                     </tr>
 
                     <tr>
-                        <td>
-
-                        </td>
+                        <td></td>
                         <td>
                             <button type='submit'>Submit</button>
                         </td>
@@ -193,8 +177,7 @@ function Home() {
             </form>
             <ToastContainer />
         </div>
-    )
-
+    );
 }
 
-export default Home
+export default Home;
